@@ -1,32 +1,52 @@
+using CRUDApp.Data.Interfaces;
 using CRUDApp.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 
 namespace CRUDApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IGameRepository _gameRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IGameRepository gameRepository)
         {
-            _logger = logger;
+            _gameRepository = gameRepository;
         }
-
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
-        }
+            var gamesData = _gameRepository.GetAll().Result;
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            var viewModel = gamesData.Select(game => new GameViewModel()
+            {
+                Id = game.Id,
+                Name = game.Name,
+                Description = game.Description,
+                Price = game.Price,
+            }).ToList();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+            return View(viewModel);
+        }
+        [HttpPost]
+        public IActionResult Delete(Guid id)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            _gameRepository.Delete(id);
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public IActionResult Update(Guid id, string name, string description, decimal price)
+        {
+            _gameRepository.Update(id, name, description, price);
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        public IActionResult Create(string name, string description, decimal price)
+        {
+            _gameRepository.Create(Guid.NewGuid(), name, description, price);
+
+            return RedirectToAction("Index");
         }
     }
 }

@@ -1,8 +1,42 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using CRUDApp.Models
+@model List<GameViewModel>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@foreach (var game in Model)
+{
+    <div class="col">
+        <div class="card border-dark mb-3">
+            <div class="card-header bg-transparent border-dark">
+                <h5 class="card-title text-center">@game.Name</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    @game.Description
+                </p>
+            </div>
+            <div class="card-footer bg-transparent border-dark">
+                <div class="row">
+                    <div class="col align-content-center">
+                        <h5>@game.Price $</h5>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editModal"
+                                onclick="populateEditForm('@game.Id', '@game.Name', '@game.Description', @game.Price)">
+                            Edit
+                        </button>
+                    </div>
+                    <div class="col">
+                        <form method="post" action="/Home/Delete">
+                            <input type="hidden" value="@game.Id" name="id" />
+                            <button class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
